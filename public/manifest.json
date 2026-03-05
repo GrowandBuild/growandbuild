@@ -1,7 +1,7 @@
 {
     "name": "Meus Produtos",
     "short_name": "Produtos",
-    "description": "Sistema de gest\u00e3o de produtos",
+    "description": "Sistema de gestão de produtos",
     "start_url": "\/",
     "display": "standalone",
     "background_color": "#1f2937",
@@ -86,7 +86,7 @@
             ]
         },
         {
-            "name": "Administra\u00e7\u00e3o",
+            "name": "Administração",
             "short_name": "Admin",
             "description": "Painel administrativo",
             "url": "\/admin/products",

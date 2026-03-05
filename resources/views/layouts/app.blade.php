@@ -14,6 +14,11 @@
         <meta name="msapplication-TileColor" content="#10b981">
         <meta name="msapplication-TileImage" content="{{ asset('images/icon-192x192.png') }}">
         
+        <!-- Forçar modo standalone -->
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <meta name="mobile-web-app-capable" content="yes">
+        
         <!-- Favicon e Apple Touch Icons -->
         <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon.png') }}">
         <link rel="apple-touch-icon" sizes="72x72" href="{{ asset('images/icon-72x72.png') }}">
@@ -488,19 +493,33 @@
         // Detectar se está rodando como PWA
         function isPWA() {
             return window.matchMedia('(display-mode: standalone)').matches || 
-                   window.navigator.standalone === true;
+                   window.navigator.standalone === true ||
+                   document.referrer.includes('android-app://');
         }
 
-        // Mostrar mensagem de boas-vindas se for PWA
+        // Forçar comportamento standalone se for PWA
         if (isPWA()) {
+            // Remover elementos do navegador se existirem
             window.addEventListener('load', () => {
+                // Esconder qualquer elemento que pareça barra de navegação
+                const navElements = document.querySelectorAll('nav, .navbar, .browser-nav');
+                navElements.forEach(el => {
+                    if (el.textContent.includes('Voltar') || el.textContent.includes('Back')) {
+                        el.style.display = 'none';
+                    }
+                });
+                
+                // Adicionar classe PWA ao body
+                document.body.classList.add('pwa-mode');
+                
+                // Mostrar mensagem de boas-vindas
                 setTimeout(() => {
                     showInstallMessage('Bem-vindo ao Meus Produtos! 📱', 'success');
                 }, 1000);
             });
         }
 
-        // Adicionar CSS animations
+        // Adicionar CSS animations e estilos PWA
         const style = document.createElement('style');
         style.textContent = `
             @keyframes pulse {
@@ -517,6 +536,26 @@
             @keyframes slideInDown {
                 from { transform: translate(-50%, -100%); opacity: 0; }
                 to { transform: translate(-50%, 0); opacity: 1; }
+            }
+            
+            /* Estilos para modo PWA */
+            .pwa-mode {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+            
+            .pwa-mode .system-switcher {
+                padding-top: calc(20px + env(safe-area-inset-top));
+            }
+            
+            /* Esconder scrollbar em modo PWA */
+            .pwa-mode::-webkit-scrollbar {
+                display: none;
+            }
+            
+            .pwa-mode {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
             }
         `;
         document.head.appendChild(style);
