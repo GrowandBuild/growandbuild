@@ -1,0 +1,825 @@
+/**
+ * MEUS PRODUTOS - JavaScript Otimizado
+ * Performance e funcionalidades essenciais
+ */
+
+// Cache de elementos DOM
+const DOMCache = {
+    searchInput: null,
+    productGrid: null,
+    init() {
+        this.searchInput = document.querySelector('.premium-search-input');
+        this.productGrid = document.querySelector('.premium-product-grid');
+    }
+};
+
+// Performance Monitor
+const PerformanceMonitor = {
+    startTime: 0,
+    start() {
+        this.startTime = performance.now();
+    },
+    end(label = 'Operation') {
+        const duration = performance.now() - this.startTime;
+        console.log(`${label} took ${duration.toFixed(2)}ms`);
+        return duration;
+    }
+};
+
+// Search Manager
+const SearchManager = {
+    debounceTimer: null,
+    cache: new Map(),
+    
+    init() {
+        if (DOMCache.searchInput) {
+            DOMCache.searchInput.addEventListener('input', (e) => {
+                this.handleSearch(e.target.value);
+            });
+        }
+    },
+    
+    handleSearch(query) {
+        clearTimeout(this.debounceTimer);
+        
+        if (query.length < 2) {
+            this.clearResults();
+            return;
+        }
+        
+        this.debounceTimer = setTimeout(() => {
+            this.performSearch(query);
+        }, 300);
+    },
+    
+    async performSearch(query) {
+        PerformanceMonitor.start();
+        
+        // Verificar cache primeiro
+        if (this.cache.has(query)) {
+            this.displayResults(this.cache.get(query));
+            PerformanceMonitor.end('Search (cached)');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/products/search?q=${encodeURIComponent(query)}&ajax=1`);
+            const data = await response.json();
+            
+            // Cache do resultado
+            this.cache.set(query, data);
+            
+            this.displayResults(data);
+            PerformanceMonitor.end('Search (API)');
+        } catch (error) {
+            console.error('Erro na busca:', error);
+        }
+    },
+    
+    displayResults(data) {
+        // Implementar exibição dos resultados
+        console.log('Resultados da busca:', data);
+    },
+    
+    clearResults() {
+        // Limpar resultados da busca
+    }
+};
+
+// Image Lazy Loading
+const LazyImageLoader = {
+    observer: null,
+    defaultImage: '/images/no-image.png',
+    
+    init() {
+        if ('IntersectionObserver' in window) {
+            this.observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        this.loadImage(entry.target);
+                    }
+                });
+            }, {
+                rootMargin: '50px 0px',
+                threshold: 0.1
+            });
+            
+            this.observeImages();
+        }
+    },
+    
+    observeImages() {
+        const images = document.querySelectorAll('img[data-src]');
+        images.forEach(img => {
+            // Adicionar tratamento de erro se ainda não existir
+            if (!img.hasAttribute('data-error-handled')) {
+                img.setAttribute('data-error-handled', 'true');
+                img.addEventListener('error', function() {
+                    // Se a imagem falhar ao carregar, usar imagem padrão
+                    const defaultImg = this.getAttribute('data-default') || this.closest('.lazy-image-container')?.querySelector('img[data-src]')?.getAttribute('data-default') || LazyImageLoader.defaultImage;
+                    if (this.src !== defaultImg && !this.src.includes('no-image')) {
+                        this.src = defaultImg;
+                    }
+                }, { once: true });
+            }
+            this.observer.observe(img);
+        });
+    },
+    
+    loadImage(img) {
+        if (!img.dataset.src) {
+            return;
+        }
+        
+        // Verificar se a imagem já foi carregada
+        if (img.src && img.src !== this.defaultImage && img.src !== img.dataset.src) {
+            this.observer.unobserve(img);
+            return;
+        }
+        
+        // Carregar a imagem do data-src
+        img.src = img.dataset.src;
+        img.classList.remove('lazy');
+        this.observer.unobserve(img);
+    }
+};
+
+// Cache Manager
+const CacheManager = {
+    storage: localStorage,
+    prefix: 'meus_produtos_',
+    
+    set(key, value, ttl = 300000) { // 5 minutos por padrão
+        const item = {
+            value,
+            timestamp: Date.now(),
+            ttl
+        };
+        this.storage.setItem(this.prefix + key, JSON.stringify(item));
+    },
+    
+    get(key) {
+        const item = this.storage.getItem(this.prefix + key);
+        if (!item) return null;
+        
+        const parsed = JSON.parse(item);
+        const now = Date.now();
+        
+        if (now - parsed.timestamp > parsed.ttl) {
+            this.storage.removeItem(this.prefix + key);
+            return null;
+        }
+        
+        return parsed.value;
+    },
+    
+    clear() {
+        const keys = Object.keys(this.storage);
+        keys.forEach(key => {
+            if (key.startsWith(this.prefix)) {
+                this.storage.removeItem(key);
+            }
+        });
+    }
+};
+
+// Animation Manager
+const AnimationManager = {
+    animateIn(element, animation = 'fadeIn') {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(20px)';
+        
+        requestAnimationFrame(() => {
+            element.style.transition = 'all 0.3s ease';
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+        });
+    },
+    
+    staggerIn(elements, delay = 100) {
+        elements.forEach((element, index) => {
+            setTimeout(() => {
+                this.animateIn(element);
+            }, index * delay);
+        });
+    }
+};
+
+// Error Handler
+const ErrorHandler = {
+    init() {
+        // Apenas logar erros reais, não eventos que não são erros
+        window.addEventListener('error', (event) => {
+            // Ignorar erros de recursos (imagens, etc) que não são críticos
+            if (event.target && (event.target.tagName === 'IMG' || event.target.tagName === 'LINK')) {
+                // Erro de recurso não crítico, não logar
+                return;
+            }
+            // Logar apenas erros de JavaScript reais
+            if (event.error) {
+                console.error('Erro JavaScript:', event.error);
+                this.reportError(event.error);
+            }
+        });
+        
+        window.addEventListener('unhandledrejection', (event) => {
+            // Ignorar promessas rejeitadas que não são críticas
+            if (event.reason && typeof event.reason === 'string' && event.reason.includes('404')) {
+                return; // Ignorar erros 404 silenciosamente
+            }
+            console.error('Promise rejeitada:', event.reason);
+            this.reportError(event.reason);
+        });
+    },
+    
+    reportError(error) {
+        // Implementar relatório de erros apenas em produção
+        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+            // Aqui você pode adicionar código para enviar erros para um serviço de monitoramento
+            console.log('Erro reportado:', error);
+        }
+    }
+};
+
+// Performance Optimizations
+const PerformanceOptimizer = {
+    prefetchedPages: new Set(),
+    
+    init() {
+        this.preloadCriticalResources();
+        this.optimizeImages();
+        // this.setupPrefetching(); // DESABILITADO - pode interferir
+        // this.setupPagePrefetching(); // DESABILITADO - pode interferir (adiciona event listeners que podem causar problemas)
+        this.optimizePageTransitions(); // Apenas setupLoadingStates, sem navegação AJAX
+    },
+    
+    preloadCriticalResources() {
+        // Preload de recursos críticos - REMOVIDO
+        // Os recursos já são carregados no HTML, então preload dinâmico não é necessário
+        // e causa warnings no console porque não são usados imediatamente
+        // Mantendo função vazia para compatibilidade
+        return;
+    },
+    
+    optimizeImages() {
+        // Converter imagens para WebP se suportado
+        if (this.supportsWebP()) {
+            // Apenas processar imagens já carregadas (com src definido, não data-src)
+            const images = document.querySelectorAll('img[src]:not([src=""]):not([src*="no-image"])');
+            images.forEach(img => {
+                // Ignorar imagens com data-src (lazy loading) - elas serão processadas quando carregadas
+                if (img.hasAttribute('data-src')) {
+                    return;
+                }
+                
+                // Ignorar placeholder no-image para evitar erro 404
+                if (img.src.includes('no-image') || img.src.includes('placeholder')) {
+                    return;
+                }
+                
+                // Verificar se já é WebP
+                if (img.src.includes('.webp')) {
+                    return;
+                }
+                
+                // Apenas tentar converter se tiver extensão jpg ou png
+                const hasValidExtension = /\.(jpg|jpeg|png)$/i.test(img.src);
+                if (!hasValidExtension) {
+                    return;
+                }
+                
+                // Tentar carregar WebP de forma silenciosa (sem requisições 404 no console)
+                const webpSrc = img.src.replace(/\.(jpg|jpeg|png)$/i, '.webp');
+                
+                // Usar fetch com mode 'no-cors' para evitar erros no console
+                // Mas isso não permite verificar se existe, então usamos Image com tratamento de erro
+                const webpImg = new Image();
+                
+                // Configurar tratamento de erro silencioso
+                webpImg.onload = () => {
+                    // Só trocar se o WebP foi carregado com sucesso
+                    if (webpImg.complete && webpImg.naturalWidth > 0) {
+                        img.src = webpSrc;
+                    }
+                };
+                
+                webpImg.onerror = () => {
+                    // WebP não existe - manter imagem original silenciosamente
+                    // Não fazer nada para evitar logs de erro desnecessários
+                };
+                
+                // Carregar WebP de forma assíncrona
+                webpImg.src = webpSrc;
+            });
+        }
+    },
+    
+    supportsWebP() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 1;
+        canvas.height = 1;
+        return canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+    },
+    
+    setupPrefetching() {
+        // Prefetch de páginas prováveis
+        const prefetchLinks = [
+            '/products/search',
+            '/products/compra'
+        ];
+        
+        prefetchLinks.forEach(link => {
+            const prefetchLink = document.createElement('link');
+            prefetchLink.rel = 'prefetch';
+            prefetchLink.href = link;
+            document.head.appendChild(prefetchLink);
+        });
+    },
+    
+    // setupPagePrefetching() DESABILITADO - estava adicionando listeners em todos os links
+    // Isso poderia interferir com formulários e outros elementos
+    setupPagePrefetching() {
+        // DESABILITADO - não adicionar listeners que possam interferir
+        return;
+    },
+    
+    prefetchPage(url) {
+        // Verificar se já foi prefetchado
+        if (this.prefetchedPages.has(url)) return;
+        
+        // Prefetch da página
+        const prefetchLink = document.createElement('link');
+        prefetchLink.rel = 'prefetch';
+        prefetchLink.href = url;
+        prefetchLink.onload = () => {
+            this.prefetchedPages.add(url);
+            console.log('Página prefetchada:', url);
+        };
+        document.head.appendChild(prefetchLink);
+    },
+    
+    optimizePageTransitions() {
+        // NAVEGAÇÃO AJAX DESABILITADA - usando navegação normal do navegador
+        // Isso evita problemas com event listeners e funcionalidades que dependem de recarregamento da página
+        // Transições suaves entre páginas
+        // this.setupPageTransition(); // DESABILITADO - causava problemas
+        this.setupLoadingStates();
+    },
+    
+    setupLoadingStates() {
+        // Configurar estados de loading para transições de página
+        // Como a navegação AJAX está desabilitada, esta função apenas garante
+        // que os estados de loading estejam disponíveis se necessário no futuro
+        // Por enquanto, não faz nada já que a navegação é normal do navegador
+        return;
+    },
+    
+    // setupPageTransition() DESABILITADO - navegação AJAX causava problemas
+    // Todos os links agora usam navegação normal do navegador (window.location.href)
+    setupPageTransition() {
+        // CÓDIGO DESABILITADO - usando navegação normal do navegador
+        // A navegação AJAX estava interferindo com event listeners e funcionalidades
+        return;
+    },
+    
+    // Navegação AJAX DESABILITADA - sempre usar navegação normal do navegador
+    async navigateToPage(url) {
+        // Navegação AJAX desabilitada - usar sempre navegação normal
+        // Isso evita problemas com event listeners e funcionalidades
+        window.location.href = url;
+    },
+    
+    // Métodos de cache DESABILITADOS - estavam causando problemas
+    async getFromCache(url) {
+        // Cache desabilitado - retornar null para usar sempre navegação normal
+        return null;
+    },
+    
+    async cachePage(url, response) {
+        // Cache de páginas desabilitado - não fazer nada
+        return;
+    },
+    
+    updatePageContent(html) {
+        // Extrair apenas o conteúdo principal
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        
+        // Atualizar conteúdo
+        const newContent = doc.querySelector('.premium-content') || doc.querySelector('.mobile-container');
+        const currentContent = document.querySelector('.premium-content') || document.querySelector('.mobile-container');
+        
+        if (newContent && currentContent) {
+            currentContent.innerHTML = newContent.innerHTML;
+        }
+        
+        // Re-executar scripts se necessário
+        this.reinitializeComponents();
+    },
+    
+    reinitializeComponents() {
+        // Re-inicializar componentes após mudança de página
+        if (window.MeusProdutos && window.MeusProdutos.App) {
+            window.MeusProdutos.App.animatePageElements();
+        }
+    },
+    
+    showPageLoading() {
+        // Criar indicador de loading
+        if (!document.getElementById('page-loading')) {
+            const loading = document.createElement('div');
+            loading.id = 'page-loading';
+            loading.innerHTML = `
+                <div style="
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background: linear-gradient(90deg, #10b981, #059669);
+                    z-index: 9999;
+                    animation: loading 1s ease-in-out infinite;
+                "></div>
+                <style>
+                    @keyframes loading {
+                        0% { transform: translateX(-100%); }
+                        100% { transform: translateX(100%); }
+                    }
+                </style>
+            `;
+            document.body.appendChild(loading);
+        }
+    },
+    
+    hidePageLoading() {
+        const loading = document.getElementById('page-loading');
+        if (loading) {
+            loading.remove();
+        }
+    }
+};
+
+// Main App Initializer
+const App = {
+    init() {
+        PerformanceMonitor.start();
+        
+        // Inicializar componentes
+        DOMCache.init();
+        SearchManager.init();
+        LazyImageLoader.init();
+        ErrorHandler.init();
+        PerformanceOptimizer.init();
+        HamburgerMenuManager.init();
+        
+        // Animar elementos na página
+        this.animatePageElements();
+        
+        PerformanceMonitor.end('App Initialization');
+    },
+    
+    animatePageElements() {
+        const cards = document.querySelectorAll('.premium-product-card, .top-product-card');
+        if (cards.length > 0) {
+            AnimationManager.staggerIn(Array.from(cards), 50);
+        }
+    }
+};
+
+// Função para forçar verificação de CSS em produção
+function forceReloadCSS() {
+    const cssLink = document.getElementById('main-css') || document.querySelector('link[href*="app.css"]');
+    if (cssLink) {
+        // Verificar se CSS está carregado corretamente
+        setTimeout(() => {
+            // Verificar se elementos críticos estão visíveis
+            const hamburger = document.getElementById('hamburgerMenu');
+            const menuPanel = document.querySelector('.hamburger-menu-panel');
+            
+            if (hamburger && menuPanel) {
+                const hamburgerStyle = window.getComputedStyle(hamburger);
+                const panelStyle = window.getComputedStyle(menuPanel);
+                
+                // Se estiver visível quando não deveria estar ou vice-versa
+                const shouldBeHidden = !menuPanel.classList.contains('active');
+                const isHidden = panelStyle.visibility === 'hidden' || panelStyle.left === '-100%' || panelStyle.left.includes('-100%');
+                
+                if ((shouldBeHidden && !isHidden) || (!shouldBeHidden && isHidden)) {
+                    // CSS pode estar desatualizado
+                    console.warn('CSS pode estar desatualizado, forçando recarregamento...');
+                    const href = cssLink.href.split('?')[0];
+                    const timestamp = new Date().getTime();
+                    cssLink.href = `${href}?v=${timestamp}`;
+                }
+            }
+        }, 1500);
+    }
+}
+
+// Inicializar quando DOM estiver pronto
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        App.init();
+        forceReloadCSS();
+    });
+} else {
+    App.init();
+    forceReloadCSS();
+}
+
+// Cache Simple Functions
+async function clearAllCachesSimple() {
+    if (typeof window.confirmAction === 'function') {
+        const confirmed = await window.confirmAction(
+            'Tem certeza que deseja limpar todos os caches?',
+            'Limpar Caches'
+        );
+        if (confirmed) {
+            try {
+                // Limpar localStorage
+                localStorage.clear();
+                
+                // Limpar caches
+                if ('caches' in window) {
+                    caches.keys().then(names => {
+                        names.forEach(name => caches.delete(name));
+                    });
+                }
+                
+                // Limpar sessionStorage
+                sessionStorage.clear();
+                
+                if (typeof window.showSuccess === 'function') {
+                    window.showSuccess('Todos os caches foram limpos com sucesso!');
+                }
+                window.location.reload();
+            } catch (error) {
+                console.error('Erro ao limpar caches:', error);
+                if (typeof window.showError === 'function') {
+                    window.showError('Erro ao limpar caches. Por favor, tente novamente.');
+                }
+            }
+        }
+    }
+}
+
+// Dev Mode Toggle
+let devMode = false;
+
+function toggleDevModeSimple() {
+    devMode = !devMode;
+    const btn = document.getElementById('simpleDevBtn');
+    
+    if (devMode) {
+        btn.classList.add('active');
+        btn.style.background = 'rgba(245, 158, 11, 0.8)';
+        console.log('%c🔧 MODO DEV ATIVADO', 'font-weight: bold; font-size: 16px; color: #f59e0b;');
+        console.log('Cache Manager:', window.MeusProdutos?.CacheManager);
+        console.log('Performance Monitor:', window.MeusProdutos?.PerformanceMonitor);
+    } else {
+        btn.classList.remove('active');
+        btn.style.background = '';
+        console.log('%c✅ MODO DEV DESATIVADO', 'font-weight: bold; font-size: 16px; color: #10b981;');
+    }
+}
+
+// Hamburger Menu Manager
+const HamburgerMenuManager = {
+    isOpen: false,
+    
+    init() {
+        // Fechar menu ao clicar fora ou ao pressionar ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.isOpen) {
+                this.close();
+            }
+        });
+        
+        // Fechar menu ao clicar em um link
+        const menuItems = document.querySelectorAll('.hamburger-menu-item');
+        menuItems.forEach(item => {
+            item.addEventListener('click', () => {
+                setTimeout(() => this.close(), 200);
+            });
+        });
+    },
+    
+    toggle() {
+        if (this.isOpen) {
+            this.close();
+        } else {
+            this.open();
+        }
+    },
+    
+    open() {
+        const menu = document.getElementById('hamburgerMenu');
+        const panel = document.getElementById('hamburgerMenuPanel');
+        const overlay = document.getElementById('hamburgerOverlay');
+        
+        if (menu && panel && overlay) {
+            // Usar requestAnimationFrame para melhor performance
+            requestAnimationFrame(() => {
+                menu.classList.add('active');
+                panel.classList.add('active');
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                this.isOpen = true;
+            });
+        }
+    },
+    
+    close() {
+        const menu = document.getElementById('hamburgerMenu');
+        const panel = document.getElementById('hamburgerMenuPanel');
+        const overlay = document.getElementById('hamburgerOverlay');
+        
+        if (menu && panel && overlay) {
+            // Usar requestAnimationFrame para melhor performance
+            requestAnimationFrame(() => {
+                menu.classList.remove('active');
+                panel.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+                this.isOpen = false;
+            });
+        }
+    }
+};
+
+// Função global para toggle do menu
+function toggleHamburgerMenu() {
+    HamburgerMenuManager.toggle();
+}
+
+// Exportar para uso global
+window.MeusProdutos = {
+    App,
+    CacheManager,
+    PerformanceMonitor,
+    SearchManager,
+    HamburgerMenuManager,
+    clearAllCachesSimple,
+    toggleDevModeSimple,
+    toggleHamburgerMenu,
+    FinanceQuotesManager: null
+};
+
+// Inicializar menu hambúrguer
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        HamburgerMenuManager.init();
+        // Garantir que hamburger lines sejam visíveis
+        ensureHamburgerMenuVisible();
+    });
+} else {
+    HamburgerMenuManager.init();
+    // Garantir que hamburger lines sejam visíveis
+    ensureHamburgerMenuVisible();
+}
+
+// Função para garantir que o menu hambúrguer seja visível
+function ensureHamburgerMenuVisible() {
+    const hamburgerMenu = document.getElementById('hamburgerMenu');
+    if (!hamburgerMenu) return;
+    
+    const hamburgerLines = hamburgerMenu.querySelectorAll('.hamburger-line');
+    const fallbackIcon = hamburgerMenu.querySelector('.hamburger-fallback');
+    
+    // Verificar se as linhas estão visíveis
+    let hasVisibleLines = false;
+    hamburgerLines.forEach(line => {
+        const style = window.getComputedStyle(line);
+        if (style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0') {
+            hasVisibleLines = true;
+            // Forçar visibilidade
+            line.style.display = 'block';
+            line.style.visibility = 'visible';
+            line.style.opacity = '1';
+            line.style.background = 'white';
+        }
+    });
+    
+    // Se não houver linhas visíveis, mostrar fallback
+    if (!hasVisibleLines && fallbackIcon) {
+        fallbackIcon.style.display = 'block';
+    } else if (fallbackIcon) {
+        fallbackIcon.style.display = 'none';
+    }
+}
+
+// Executar verificação após um pequeno delay para garantir que CSS foi carregado
+setTimeout(ensureHamburgerMenuVisible, 100);
+
+// ===================================
+// FRASES DE GESTÃO FINANCEIRA - UNIFICADO
+// ===================================
+const FinanceQuotesManager = {
+    quotes: [
+        'Pague-se primeiro: guarde pelo menos 10% da sua renda',
+        'Não gaste mais do que você ganha',
+        'Planeje cada compra antes de executá-la',
+        'Tenha uma reserva de emergência',
+        'Invista em conhecimento, é o melhor ativo',
+        'Evite dívidas desnecessárias',
+        'Controle seus gastos diariamente',
+        'Estabeleça metas financeiras claras',
+        'Compare preços antes de comprar',
+        'Priorize necessidades sobre desejos',
+        'Registre todas as suas transações',
+        'Revise seus gastos mensalmente',
+        'Aprenda a dizer não a compras impulsivas',
+        'Construa múltiplas fontes de renda',
+        'Pense a longo prazo, mas comece pequeno'
+    ],
+    currentIndex: 0,
+    interval: null,
+    
+    init() {
+        const quoteText = document.getElementById('financeQuoteText');
+        const quoteContainer = document.getElementById('financeQuoteContainer');
+        
+        if (quoteText && quoteContainer) {
+            this.currentIndex = Math.floor(Math.random() * this.quotes.length);
+            this.updateQuoteText();
+            
+            // Trocar frase a cada 8 segundos
+            this.interval = setInterval(() => this.rotateQuote(), 8000);
+        }
+    },
+    
+    updateQuoteText() {
+        const quoteText = document.getElementById('financeQuoteText');
+        const quoteContainer = document.getElementById('financeQuoteContainer');
+        
+        if (!quoteText || !quoteContainer) return;
+        
+        quoteText.textContent = this.quotes[this.currentIndex];
+        
+        setTimeout(() => {
+            const wrapper = quoteText.parentElement;
+            const containerWidth = wrapper.offsetWidth;
+            
+            quoteText.style.display = '-webkit-box';
+            const textHeight = quoteText.scrollHeight;
+            const containerHeight = wrapper.offsetHeight;
+            
+            if (textHeight > containerHeight * 2.5) {
+                quoteText.style.display = 'inline-block';
+                const textWidth = quoteText.scrollWidth;
+                
+                if (textWidth > containerWidth) {
+                    wrapper.classList.add('scroll-mode');
+                    const scrollAmount = textWidth - containerWidth + 20;
+                    quoteText.style.setProperty('--scroll-amount', `-${scrollAmount}px`);
+                } else {
+                    wrapper.classList.remove('scroll-mode');
+                }
+            } else {
+                quoteText.style.display = '-webkit-box';
+                wrapper.classList.remove('scroll-mode');
+            }
+        }, 200);
+    },
+    
+    rotateQuote() {
+        const quoteText = document.getElementById('financeQuoteText');
+        const quoteContainer = document.getElementById('financeQuoteContainer');
+        
+        if (!quoteText || !quoteContainer) return;
+        
+        const wrapper = quoteText.parentElement;
+        wrapper.classList.remove('scroll-mode');
+        quoteContainer.style.opacity = '0';
+        quoteContainer.style.transform = 'translateX(-10px)';
+        
+        setTimeout(() => {
+            this.currentIndex = (this.currentIndex + 1) % this.quotes.length;
+            this.updateQuoteText();
+            
+            quoteContainer.style.opacity = '1';
+            quoteContainer.style.transform = 'translateX(0)';
+        }, 300);
+    },
+    
+    destroy() {
+        if (this.interval) {
+            clearInterval(this.interval);
+            this.interval = null;
+        }
+    }
+};
+
+// Exportar para uso global (atualizar objeto existente)
+if (window.MeusProdutos) {
+    window.MeusProdutos.FinanceQuotesManager = FinanceQuotesManager;
+}
+
+// Inicializar frases financeiras
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        FinanceQuotesManager.init();
+    });
+} else {
+    FinanceQuotesManager.init();
+}

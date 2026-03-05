@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gerador de Ícones PWA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .icon-preview {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+        }
+        canvas {
+            border: 1px solid #ddd;
+            background: white;
+        }
+        .download-btn {
+            display: block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .download-btn:hover {
+            background: #059669;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gerador de Ícones PWA</h1>
+    <p>Clique no botão abaixo para gerar e baixar todos os ícones necessários.</p>
+    
+    <button id="generateAll" class="download-btn" style="margin-bottom: 20px;">Gerar Todos os Ícones</button>
+    
+    <div id="previews"></div>
+    
+    <script>
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        
+        async function generateIcon(size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Fundo branco (padrão para ícones de app)
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, size, size);
+            
+            // Carregar e desenhar a imagem personalizada
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = function() {
+                    // Manter proporção da imagem e centralizar
+                    const scale = Math.min(size * 0.8 / img.width, size * 0.8 / img.height);
+                    const scaledWidth = img.width * scale;
+                    const scaledHeight = img.height * scale;
+                    const x = (size - scaledWidth) / 2;
+                    const y = (size - scaledHeight) / 2;
+                    
+                    ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
+                    resolve(canvas);
+                };
+                img.onerror = function() {
+                    // Se falhar, criar um ícone padrão
+                    createDefaultIcon(ctx, size);
+                    resolve(canvas);
+                };
+                img.src = '../foto do app.svg';
+            });
+        }
+        
+        function createDefaultIcon(ctx, size) {
+            // Ícone padrão como fallback
+            const centerX = size / 2;
+            const centerY = size / 2;
+            const radius = size * 0.3;
+            
+            ctx.fillStyle = '#10b981';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.font = `${size * 0.4}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('F', centerX, centerY);
+        }
+        
+        function downloadCanvas(canvas, filename) {
+            canvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        }
+        
+        async function generateAll() {
+            // Limpar previews
+            document.getElementById('previews').innerHTML = '';
+            
+            for (let index = 0; index < sizes.length; index++) {
+                const size = sizes[index];
+                const canvas = await generateIcon(size);
+                const filename = `icon-${size}x${size}.png`;
+                
+                // Adicionar preview
+                const preview = document.createElement('div');
+                preview.className = 'icon-preview';
+                const img = document.createElement('img');
+                img.src = canvas.toDataURL();
+                img.style.width = '100px';
+                img.style.height = '100px';
+                img.style.border = '1px solid #ddd';
+                img.style.borderRadius = '8px';
+                preview.appendChild(img);
+                preview.appendChild(document.createElement('br'));
+                preview.appendChild(document.createTextNode(`${size}x${size}`));
+                
+                const btn = document.createElement('button');
+                btn.textContent = 'Baixar';
+                btn.className = 'download-btn';
+                btn.onclick = () => downloadCanvas(canvas, filename);
+                preview.appendChild(btn);
+                
+                document.getElementById('previews').appendChild(preview);
+                
+                // Auto-download após delay
+                setTimeout(() => {
+                    downloadCanvas(canvas, filename);
+                }, index * 500); // Delay entre downloads
+            }
+            
+            // Gerar favicon também
+            setTimeout(async () => {
+                const favicon = await generateIcon(32);
+                downloadCanvas(favicon, 'favicon.png');
+            }, sizes.length * 500);
+        }
+        
+        document.getElementById('generateAll').addEventListener('click', generateAll);
+    </script>
+</body>
+</html>
+

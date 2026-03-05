@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        
+        <!-- PWA Meta Tags -->
+        <meta name="theme-color" content="#10b981">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-title" content="Meus Produtos">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="msapplication-TileColor" content="#10b981">
+        <meta name="msapplication-TileImage" content="{{ asset('images/icon-192x192.png') }}">
+        
+        <!-- Favicon e Apple Touch Icons -->
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon.png') }}">
+        <link rel="apple-touch-icon" sizes="72x72" href="{{ asset('images/icon-72x72.png') }}">
+        <link rel="apple-touch-icon" sizes="96x96" href="{{ asset('images/icon-96x96.png') }}">
+        <link rel="apple-touch-icon" sizes="128x128" href="{{ asset('images/icon-128x128.png') }}">
+        <link rel="apple-touch-icon" sizes="144x144" href="{{ asset('images/icon-144x144.png') }}">
+        <link rel="apple-touch-icon" sizes="152x152" href="{{ asset('images/icon-152x152.png') }}">
+        <link rel="apple-touch-icon" sizes="192x192" href="{{ asset('images/icon-192x192.png') }}">
+        <link rel="apple-touch-icon" sizes="384x384" href="{{ asset('images/icon-384x384.png') }}">
+        <link rel="apple-touch-icon" sizes="512x512" href="{{ asset('images/icon-512x512.png') }}">
+        
+        <!-- Manifest PWA -->
+        <link rel="manifest" href="{{ asset('manifest.json') }}">
+        
+        <!-- Apple Splash Screens -->
+        <link rel="apple-touch-startup-image" media="screen and (device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)" href="{{ asset('images/splash_screens/iPhone_17_Pro_Max__iPhone_16_Pro_Max_landscape.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)" href="{{ asset('images/splash_screens/iPhone_17_Pro__iPhone_17__iPhone_16_Pro_landscape.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)" href="{{ asset('images/splash_screens/iPhone_16_Plus__iPhone_15_Pro_Max__iPhone_15_Plus__iPhone_14_Pro_Max_landscape.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 420px) and (device-height: 912px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)" href="{{ asset('images/splash_screens/iPhone_Air_landscape.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)" href="{{ asset('images/splash_screens/iPhone_16__iPhone_15_Pro__iPhone_15__iPhone_14_Pro_landscape.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)" href="{{ asset('images/splash_screens/iPhone_14_Plus__iPhone_13_Pro_Max__iPhone_12_Pro_Max_landscape.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)" href="{{ asset('images/splash_screens/iPhone_16e__iPhone_14__iPhone_13_Pro__iPhone_13__iPhone_12_Pro__iPhone_12_landscape.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)" href="{{ asset('images/splash_screens/iPhone_13_mini__iPhone_12_mini__iPhone_11_Pro__iPhone_XS__iPhone_X_landscape.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)" href="{{ asset('images/splash_screens/iPhone_11_Pro_Max__iPhone_XS_Max_landscape.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="{{ asset('images/splash_screens/iPhone_11__iPhone_XR_landscape.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)" href="{{ asset('images/splash_screens/iPhone_8_Plus__iPhone_7_Plus__iPhone_6s_Plus__iPhone_6_Plus_landscape.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="{{ asset('images/splash_screens/iPhone_8__iPhone_7__iPhone_6s__iPhone_6__4.7__iPhone_SE_landscape.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="{{ asset('images/splash_screens/4__iPhone_SE__iPod_touch_5th_generation_and_later_landscape.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 1032px) and (device-height: 1376px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="{{ asset('images/splash_screens/13__iPad_Pro_M4_landscape.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="{{ asset('images/splash_screens/12.9__iPad_Pro_landscape.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 834px) and (device-height: 1210px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="{{ asset('images/splash_screens/11__iPad_Pro_M4_landscape.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="{{ asset('images/splash_screens/11__iPad_Pro__10.5__iPad_Pro_landscape.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="{{ asset('images/splash_screens/10.9__iPad_Air_landscape.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="{{ asset('images/splash_screens/10.5__iPad_Air_landscape.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="{{ asset('images/splash_screens/10.2__iPad_landscape.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="{{ asset('images/splash_screens/9.7__iPad_Pro__7.9__iPad_mini__9.7__iPad_Air__9.7__iPad_landscape.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="{{ asset('images/splash_screens/8.3__iPad_Mini_landscape.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="{{ asset('images/splash_screens/iPhone_17_Pro_Max__iPhone_16_Pro_Max_portrait.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="{{ asset('images/splash_screens/iPhone_17_Pro__iPhone_17__iPhone_16_Pro_portrait.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="{{ asset('images/splash_screens/iPhone_16_Plus__iPhone_15_Pro_Max__iPhone_15_Plus__iPhone_14_Pro_Max_portrait.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 420px) and (device-height: 912px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="{{ asset('images/splash_screens/iPhone_Air_portrait.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="{{ asset('images/splash_screens/iPhone_16__iPhone_15_Pro__iPhone_15__iPhone_14_Pro_portrait.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="{{ asset('images/splash_screens/iPhone_14_Plus__iPhone_13_Pro_Max__iPhone_12_Pro_Max_portrait.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="{{ asset('images/splash_screens/iPhone_16e__iPhone_14__iPhone_13_Pro__iPhone_13__iPhone_12_Pro__iPhone_12_portrait.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="{{ asset('images/splash_screens/iPhone_13_mini__iPhone_12_mini__iPhone_11_Pro__iPhone_XS__iPhone_X_portrait.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="{{ asset('images/splash_screens/iPhone_11_Pro_Max__iPhone_XS_Max_portrait.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="{{ asset('images/splash_screens/iPhone_11__iPhone_XR_portrait.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="{{ asset('images/splash_screens/iPhone_8_Plus__iPhone_7_Plus__iPhone_6s_Plus__iPhone_6_Plus_portrait.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="{{ asset('images/splash_screens/iPhone_8__iPhone_7__iPhone_6s__iPhone_6__4.7__iPhone_SE_portrait.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="{{ asset('images/splash_screens/4__iPhone_SE__iPod_touch_5th_generation_and_later_portrait.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 1032px) and (device-height: 1376px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="{{ asset('images/splash_screens/13__iPad_Pro_M4_portrait.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="{{ asset('images/splash_screens/12.9__iPad_Pro_portrait.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 834px) and (device-height: 1210px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="{{ asset('images/splash_screens/11__iPad_Pro_M4_portrait.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="{{ asset('images/splash_screens/11__iPad_Pro__10.5__iPad_Pro_portrait.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="{{ asset('images/splash_screens/10.9__iPad_Air_portrait.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="{{ asset('images/splash_screens/10.5__iPad_Air_portrait.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="{{ asset('images/splash_screens/10.2__iPad_portrait.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="{{ asset('images/splash_screens/9.7__iPad_Pro__7.9__iPad_mini__9.7__iPad_Air__9.7__iPad_portrait.png') }}">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="{{ asset('images/splash_screens/8.3__iPad_Mini_portrait.png') }}">
+
+        <title>{{ config('app.name', 'Laravel') }} - @yield('title', 'Meus Produtos')</title>
+        
+        <!-- Bootstrap 5.3 CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        
+        <!-- Bootstrap Icons -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+        
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ filemtime(public_path('css/app.css')) }}" id="main-css">
+        
+        @yield('styles')
+        @stack('styles')
+        
+        <!-- Chart.js para gráficos (carregamento diferido) -->
+        <script>
+            // Carregar Chart.js apenas quando necessário
+            window.loadChartJS = function() {
+                return new Promise((resolve) => {
+                    if (window.Chart) {
+                        resolve(window.Chart);
+                        return;
+                    }
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+                    script.onload = () => resolve(window.Chart);
+                    document.head.appendChild(script);
+                });
+            };
+        </script>
+        
+        <!-- Custom JavaScript -->
+        <script src="{{ asset('js/app.js') }}?v={{ filemtime(public_path('js/app.js')) }}"></script>
+        
+    </head>
+<body>
+    <!-- Switcher de Sistemas -->
+    <div class="system-switcher">
+        <!-- Menu Hambúrguer -->
+        <button class="hamburger-menu" id="hamburgerMenu" onclick="toggleHamburgerMenu()" aria-label="Menu">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <!-- Fallback ícone caso CSS não carregue -->
+            <i class="bi bi-list hamburger-fallback" style="display: none;"></i>
+        </button>
+        
+        <!-- Frases de Gestão Financeira (Apenas Mobile) -->
+        <div class="finance-quotes-mobile">
+            <div class="quote-container" id="financeQuoteContainer">
+                <i class="bi bi-lightbulb quote-icon"></i>
+                <div class="quote-text-wrapper">
+                    <span class="quote-text" id="financeQuoteText">Pague-se primeiro: guarde pelo menos 10% da sua renda</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Desktop Navigation - Dentro do Header -->
+        <div class="desktop-nav-in-header">
+            <a href="{{ route('products.index') }}" class="desktop-nav-item-inline {{ request()->routeIs('products.index') ? 'active' : '' }}">
+                <i class="bi bi-house-door"></i>
+                <span>Início</span>
+            </a>
+            <a href="{{ route('products.search') }}" class="desktop-nav-item-inline {{ request()->routeIs('products.search') ? 'active' : '' }}">
+                <i class="bi bi-search"></i>
+                <span>Buscar</span>
+            </a>
+            <a href="{{ route('products.compra') }}" class="desktop-nav-item-inline {{ request()->routeIs('products.compra') ? 'active' : '' }}">
+                <i class="bi bi-cart3"></i>
+                <span>Comprar</span>
+            </a>
+            @auth
+            <a href="{{ route('cashflow.dashboard') }}" class="desktop-nav-item-inline {{ request()->routeIs('cashflow.*') ? 'active' : '' }}">
+                <i class="bi bi-cash-coin"></i>
+                <span>Fluxo de Caixa</span>
+            </a>
+            <a href="{{ route('admin.products.index') }}" class="desktop-nav-item-inline {{ request()->routeIs('admin.*') ? 'active' : '' }}">
+                <i class="bi bi-gear"></i>
+                <span>Admin</span>
+            </a>
+            @else
+            <a href="{{ route('login') }}" class="desktop-nav-item-inline">
+                <i class="bi bi-person"></i>
+                <span>Login</span>
+            </a>
+            @endauth
+        </div>
+        
+        <!-- Total Mensal e Status -->
+        <div class="monthly-info">
+            @php
+                $currentMonth = \Carbon\Carbon::now();
+                $startOfMonth = $currentMonth->copy()->startOfMonth();
+                $endOfMonth = $currentMonth->copy()->endOfMonth();
+                
+                $monthlyIncome = auth()->check() 
+                    ? \App\Models\CashFlow::where('user_id', auth()->id())
+                        ->where('type', 'income')
+                        ->where('is_confirmed', true)
+                        ->whereBetween('transaction_date', [$startOfMonth, $endOfMonth])
+                        ->sum('amount')
+                    : 0;
+                
+                $monthlyExpense = auth()->check()
+                    ? \App\Models\CashFlow::where('user_id', auth()->id())
+                        ->where('type', 'expense')
+                        ->where('is_confirmed', true)
+                        ->whereBetween('transaction_date', [$startOfMonth, $endOfMonth])
+                        ->sum('amount')
+                    : 0;
+                
+                $monthlyBalance = $monthlyIncome - $monthlyExpense;
+            @endphp
+            <div class="monthly-balance">
+                <div class="balance-label">Total (Mês)</div>
+                <div class="balance-value">
+                    <i class="bi bi-cash-coin"></i>
+                    R$ {{ number_format($monthlyBalance, 2, ',', '.') }}
+                </div>
+            </div>
+            <div id="online-status" class="online-indicator">
+                <i class="bi bi-wifi"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Menu Lateral (Offcanvas) -->
+    <div class="hamburger-overlay" id="hamburgerOverlay" onclick="toggleHamburgerMenu()"></div>
+    <div class="hamburger-menu-panel" id="hamburgerMenuPanel">
+        <div class="hamburger-header">
+            <h3>Departamentos</h3>
+            <button class="hamburger-close" onclick="toggleHamburgerMenu()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="hamburger-content">
+            <a href="{{ route('products.index') }}" class="hamburger-menu-item {{ request()->routeIs('products.*') ? 'active' : '' }}">
+                <div class="menu-item-icon">
+                    <i class="bi bi-box-seam"></i>
+                </div>
+                <div class="menu-item-content">
+                    <span class="menu-item-title">Produtos</span>
+                    <span class="menu-item-subtitle">Gerenciar produtos</span>
+                </div>
+            </a>
+            <a href="{{ route('cashflow.dashboard') }}" class="hamburger-menu-item {{ request()->routeIs('cashflow.*') ? 'active' : '' }}">
+                <div class="menu-item-icon">
+                    <i class="bi bi-cash-coin"></i>
+                </div>
+                <div class="menu-item-content">
+                    <span class="menu-item-title">Fluxo de Caixa</span>
+                    <span class="menu-item-subtitle">Controle financeiro</span>
+                </div>
+            </a>
+            @auth
+            <a href="{{ route('financial-schedule.index') }}" class="hamburger-menu-item {{ request()->routeIs('financial-schedule.*') ? 'active' : '' }}">
+                <div class="menu-item-icon">
+                    <i class="bi bi-calendar-event"></i>
+                    @php
+                        $notificationCount = \App\Models\FinancialSchedule::where('user_id', auth()->id())
+                            ->where('is_confirmed', false)
+                            ->where('scheduled_date', '<=', now()->addDays(7))
+                            ->count();
+                    @endphp
+                    @if($notificationCount > 0)
+                    <span class="menu-badge">{{ $notificationCount }}</span>
+                    @endif
+                </div>
+                <div class="menu-item-content">
+                    <span class="menu-item-title">Agenda</span>
+                    <span class="menu-item-subtitle">Lembretes e eventos</span>
+                </div>
+            </a>
+            <a href="{{ route('goals.index') }}" class="hamburger-menu-item {{ request()->routeIs('goals.*') ? 'active' : '' }}">
+                <div class="menu-item-icon">
+                    <i class="bi bi-graph-up"></i>
+                </div>
+                <div class="menu-item-content">
+                    <span class="menu-item-title">Monitoramento</span>
+                    <span class="menu-item-subtitle">Objetivos e metas</span>
+                </div>
+            </a>
+            <a href="{{ route('books.index') }}" class="hamburger-menu-item {{ request()->routeIs('books.*') ? 'active' : '' }}">
+                <div class="menu-item-icon">
+                    <i class="bi bi-book"></i>
+                </div>
+                <div class="menu-item-content">
+                    <span class="menu-item-title">Sabedoria</span>
+                    <span class="menu-item-subtitle">Livros e textos</span>
+                </div>
+            </a>
+            @endauth
+        </div>
+    </div>
+    
+    <div class="mobile-container">
+        @yield('content')
+    </div>
+    
+    {{-- Modal renderizado aqui, FORA do mobile-container, para evitar conflitos de CSS --}}
+    @if(request()->routeIs('products.*') || request()->routeIs('admin.products.*'))
+        @include('components.product-modal')
+    @endif
+    
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <div class="row w-100">
+            <div class="col-3 text-center">
+                <a href="{{ route('products.index') }}" class="nav-item-custom {{ request()->routeIs('products.index') ? 'active' : '' }}">
+                    <div class="nav-icon-custom">
+                        <i class="bi bi-house-door"></i>
+                    </div>
+                    <span>Início</span>
+                </a>
+            </div>
+            <div class="col-3 text-center">
+                <a href="{{ route('products.search') }}" class="nav-item-custom {{ request()->routeIs('products.search') ? 'active' : '' }}">
+                    <div class="nav-icon-custom">
+                        <i class="bi bi-search"></i>
+                    </div>
+                    <span>Buscar</span>
+                </a>
+            </div>
+            <div class="col-3 text-center">
+                <a href="{{ route('products.compra') }}" class="nav-item-custom {{ request()->routeIs('products.compra') ? 'active' : '' }}">
+                    <div class="nav-icon-custom">
+                        <i class="bi bi-cart3"></i>
+                    </div>
+                    <span>Comprar</span>
+                </a>
+            </div>
+            @auth
+            <div class="col-3 text-center">
+                <a href="{{ route('admin.products.index') }}" class="nav-item-custom {{ request()->routeIs('admin.*') ? 'active' : '' }}">
+                    <div class="nav-icon-custom">
+                        <i class="bi bi-gear"></i>
+                    </div>
+                    <span>Admin</span>
+                </a>
+            </div>
+            @else
+            <div class="col-3 text-center">
+                <a href="{{ route('login') }}" class="nav-item-custom">
+                    <div class="nav-icon-custom">
+                        <i class="bi bi-person"></i>
+                    </div>
+                    <span>Login</span>
+                </a>
+            </div>
+            @endauth
+        </div>
+    </div>
+    
+    <!-- Bootstrap 5.3 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Sistema de Notificações -->
+    <script src="{{ asset('js/notifications.js') }}?v={{ filemtime(public_path('js/notifications.js')) }}"></script>
+    
+    <!-- Product Modal Manager -->
+    <script src="{{ asset('js/product-modal.js') }}?v={{ filemtime(public_path('js/product-modal.js')) }}"></script>
+    
+    <!-- PWA Install Script -->
+    <script>
+        let deferredPrompt;
+        let installButton;
+
+        // Detectar se o PWA pode ser instalado
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Mostrar botão de instalação
+            showInstallButton();
+        });
+
+        // Função para mostrar botão de instalação
+        function showInstallButton() {
+            // Criar botão flutuante se não existir
+            if (!document.getElementById('pwa-install-btn')) {
+                installButton = document.createElement('button');
+                installButton.id = 'pwa-install-btn';
+                installButton.innerHTML = '<i class="bi bi-download"></i> Instalar App';
+                installButton.className = 'btn btn-success position-fixed';
+                installButton.style.cssText = `
+                    bottom: 80px;
+                    right: 20px;
+                    z-index: 1050;
+                    border-radius: 50px;
+                    padding: 12px 20px;
+                    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+                    font-weight: 600;
+                    animation: pulse 2s infinite;
+                `;
+                
+                installButton.addEventListener('click', installPWA);
+                document.body.appendChild(installButton);
+                
+                // Esconder após 10 segundos
+                setTimeout(() => {
+                    if (installButton && installButton.parentNode) {
+                        installButton.style.opacity = '0';
+                        setTimeout(() => {
+                            if (installButton && installButton.parentNode) {
+                                installButton.parentNode.removeChild(installButton);
+                            }
+                        }, 300);
+                    }
+                }, 10000);
+            }
+        }
+
+        // Função para instalar o PWA
+        async function installPWA() {
+            if (!deferredPrompt) return;
+            
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            
+            if (outcome === 'accepted') {
+                console.log('PWA instalado com sucesso!');
+                
+                // Mostrar mensagem de sucesso
+                showInstallMessage('App instalado com sucesso! 🎉', 'success');
+                
+                // Remover botão
+                if (installButton && installButton.parentNode) {
+                    installButton.parentNode.removeChild(installButton);
+                }
+            } else {
+                console.log('Instalação recusada');
+            }
+            
+            deferredPrompt = null;
+        }
+
+        // Mostrar mensagem de instalação
+        function showInstallMessage(message, type = 'info') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `alert alert-${type} position-fixed`;
+            messageDiv.style.cssText = `
+                top: 20px;
+                right: 20px;
+                z-index: 1060;
+                min-width: 300px;
+                animation: slideInRight 0.3s ease-out;
+            `;
+            messageDiv.innerHTML = message;
+            
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.style.opacity = '0';
+                setTimeout(() => {
+                    if (messageDiv.parentNode) {
+                        messageDiv.parentNode.removeChild(messageDiv);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Registrar Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registrado:', registration);
+                        
+                        // Verificar atualizações
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // Nova versão disponível
+                                    showUpdateMessage();
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Erro ao registrar Service Worker:', error);
+                    });
+            });
+        }
+
+        // Mostrar mensagem de atualização
+        function showUpdateMessage() {
+            const updateDiv = document.createElement('div');
+            updateDiv.className = 'alert alert-info position-fixed';
+            updateDiv.style.cssText = `
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 1060;
+                min-width: 300px;
+                animation: slideInDown 0.3s ease-out;
+            `;
+            updateDiv.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>Nova versão disponível! 🔄</span>
+                    <button class="btn btn-sm btn-primary ms-2" onclick="updateApp()">Atualizar</button>
+                </div>
+            `;
+            
+            document.body.appendChild(updateDiv);
+            
+            window.updateApp = function() {
+                window.location.reload();
+            };
+        }
+
+        // Detectar se está rodando como PWA
+        function isPWA() {
+            return window.matchMedia('(display-mode: standalone)').matches || 
+                   window.navigator.standalone === true;
+        }
+
+        // Mostrar mensagem de boas-vindas se for PWA
+        if (isPWA()) {
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    showInstallMessage('Bem-vindo ao Meus Produtos! 📱', 'success');
+                }, 1000);
+            });
+        }
+
+        // Adicionar CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+            
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            
+            @keyframes slideInDown {
+                from { transform: translate(-50%, -100%); opacity: 0; }
+                to { transform: translate(-50%, 0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+    
+    @yield('scripts')
+    @stack('scripts')
+</body>
+</html>

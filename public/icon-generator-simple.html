@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gerador de Ícones PWA - Imagem Personalizada</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .icon-preview {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+            vertical-align: top;
+        }
+        canvas {
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 8px;
+        }
+        .download-btn {
+            display: block;
+            margin: 10px auto 0;
+            padding: 8px 16px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .download-btn:hover {
+            background: #059669;
+        }
+        .generate-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 15px 30px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .generate-btn:hover {
+            background: #2563eb;
+        }
+        .status {
+            text-align: center;
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success { background: #d1fae5; color: #065f46; }
+        .error { background: #fee2e2; color: #991b1b; }
+        .loading { background: #dbeafe; color: #1e40af; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Gerador de Ícones PWA</h1>
+        <p>Usando sua imagem personalizada "foto do app.svg"</p>
+        
+        <div id="status" class="status" style="display: none;"></div>
+        
+        <button id="generateAll" class="generate-btn">Gerar Todos os Ícones</button>
+        
+        <div id="previews"></div>
+    </div>
+    
+    <script>
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        let generatedIcons = 0;
+        const totalIcons = sizes.length + 1; // +1 para favicon
+        
+        function showStatus(message, type = 'loading') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+        }
+        
+        async function generateIcon(size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Fundo branco (padrão para ícones de app)
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, size, size);
+            
+            // Tentar carregar a imagem SVG
+            try {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    
+                    // Configurar CORS para funcionar com arquivo local
+                    img.crossOrigin = 'anonymous';
+                    
+                    img.onload = function() {
+                        // Manter proporção da imagem e centralizar
+                        const scale = Math.min(size * 0.8 / img.width, size * 0.8 / img.height);
+                        const scaledWidth = img.width * scale;
+                        const scaledHeight = img.height * scale;
+                        const x = (size - scaledWidth) / 2;
+                        const y = (size - scaledHeight) / 2;
+                        
+                        ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
+                        resolve(canvas);
+                    };
+                    
+                    img.onerror = function() {
+                        console.log('Erro ao carregar SVG, usando ícone padrão');
+                        createDefaultIcon(ctx, size);
+                        resolve(canvas);
+                    };
+                    
+                    // Tentar diferentes caminhos para a imagem
+                    img.src = '../foto do app.svg';
+                });
+            } catch (error) {
+                console.error('Erro:', error);
+                createDefaultIcon(ctx, size);
+                return canvas;
+            }
+        }
+        
+        function createDefaultIcon(ctx, size) {
+            // Ícone padrão como fallback - círculo com "F"
+            const centerX = size / 2;
+            const centerY = size / 2;
+            const radius = size * 0.3;
+            
+            // Círculo de fundo verde
+            ctx.fillStyle = '#10b981';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Letra "F" branca
+            ctx.fillStyle = '#ffffff';
+            ctx.font = `bold ${size * 0.5}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('F', centerX, centerY);
+        }
+        
+        function downloadCanvas(canvas, filename) {
+            canvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        }
+        
+        async function generateAll() {
+            const button = document.getElementById('generateAll');
+            const previews = document.getElementById('previews');
+            
+            button.disabled = true;
+            button.textContent = 'Gerando...';
+            previews.innerHTML = '';
+            generatedIcons = 0;
+            
+            showStatus('Iniciando geração dos ícones...', 'loading');
+            
+            for (let index = 0; index < sizes.length; index++) {
+                const size = sizes[index];
+                showStatus(`Gerando ícone ${size}x${size}... (${index + 1}/${sizes.length})`, 'loading');
+                
+                try {
+                    const canvas = await generateIcon(size);
+                    const filename = `icon-${size}x${size}.png`;
+                    
+                    // Adicionar preview
+                    const preview = document.createElement('div');
+                    preview.className = 'icon-preview';
+                    
+                    const img = document.createElement('img');
+                    img.src = canvas.toDataURL();
+                    img.style.width = '80px';
+                    img.style.height = '80px';
+                    img.style.border = '1px solid #ddd';
+                    img.style.borderRadius = '8px';
+                    preview.appendChild(img);
+                    
+                    const label = document.createElement('div');
+                    label.textContent = `${size}x${size}`;
+                    label.style.fontSize = '12px';
+                    label.style.margin = '5px 0';
+                    preview.appendChild(label);
+                    
+                    const btn = document.createElement('button');
+                    btn.textContent = 'Baixar';
+                    btn.className = 'download-btn';
+                    btn.onclick = () => downloadCanvas(canvas, filename);
+                    preview.appendChild(btn);
+                    
+                    previews.appendChild(preview);
+                    
+                    // Auto-download após delay
+                    setTimeout(() => {
+                        downloadCanvas(canvas, filename);
+                        generatedIcons++;
+                    }, index * 300);
+                    
+                } catch (error) {
+                    console.error(`Erro ao gerar ícone ${size}x${size}:`, error);
+                }
+            }
+            
+            // Gerar favicon também
+            setTimeout(async () => {
+                showStatus('Gerando favicon...', 'loading');
+                try {
+                    const favicon = await generateIcon(32);
+                    downloadCanvas(favicon, 'favicon.png');
+                    
+                    // Adicionar preview do favicon
+                    const preview = document.createElement('div');
+                    preview.className = 'icon-preview';
+                    
+                    const img = document.createElement('img');
+                    img.src = favicon.toDataURL();
+                    img.style.width = '80px';
+                    img.style.height = '80px';
+                    img.style.border = '1px solid #ddd';
+                    img.style.borderRadius = '8px';
+                    preview.appendChild(img);
+                    
+                    const label = document.createElement('div');
+                    label.textContent = 'favicon (32x32)';
+                    label.style.fontSize = '12px';
+                    label.style.margin = '5px 0';
+                    preview.appendChild(label);
+                    
+                    const btn = document.createElement('button');
+                    btn.textContent = 'Baixar';
+                    btn.className = 'download-btn';
+                    btn.onclick = () => downloadCanvas(favicon, 'favicon.png');
+                    preview.appendChild(btn);
+                    
+                    previews.appendChild(preview);
+                    
+                    generatedIcons++;
+                    
+                } catch (error) {
+                    console.error('Erro ao gerar favicon:', error);
+                }
+                
+                // Status final
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.textContent = 'Gerar Todos os Ícones';
+                    
+                    if (generatedIcons === totalIcons) {
+                        showStatus(`✅ Sucesso! ${generatedIcons} ícones gerados e baixados automaticamente.`, 'success');
+                    } else {
+                        showStatus(`⚠️ ${generatedIcons}/${totalIcons} ícones gerados. Verifique o console para erros.`, 'error');
+                    }
+                }, 500);
+            }, sizes.length * 300);
+        }
+        
+        document.getElementById('generateAll').addEventListener('click', generateAll);
+        
+        // Verificar se a imagem SVG existe
+        fetch('../foto do app.svg')
+            .then(response => {
+                if (response.ok) {
+                    showStatus('Imagem SVG encontrada! Clique em "Gerar Todos os Ícones" para começar.', 'success');
+                } else {
+                    showStatus('Imagem SVG não encontrada. Será usado um ícone padrão.', 'error');
+                }
+            })
+            .catch(error => {
+                showStatus('Não foi possível verificar a imagem SVG. Será usado um ícone padrão.', 'error');
+            });
+    </script>
+</body>
+</html>
